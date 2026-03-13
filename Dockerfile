@@ -4,7 +4,7 @@ FROM ghcr.io/linuxserver/baseimage-selkies:arch
 ARG BUILD_DATE
 ARG VERSION
 LABEL build_version="Custom Arch KDE + VSCode image - Build-date:- ${BUILD_DATE}"
-LABEL maintainer="Serph91P
+LABEL maintainer="Serph91P"
 
 # title
 ENV TITLE="Arch KDE VSCode" \
