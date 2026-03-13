@@ -47,6 +47,11 @@ jobs:
             NEW_PATCH=$((PATCH + 1))
             NEW_TAG="${MAJOR}.${MINOR}.${NEW_PATCH}"
           fi
+          # Skip if tag already exists (e.g. from a cancelled previous run)
+          while git rev-parse "$NEW_TAG" >/dev/null 2>&1; do
+            NEW_PATCH=$((NEW_PATCH + 1))
+            NEW_TAG="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          done
           echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
