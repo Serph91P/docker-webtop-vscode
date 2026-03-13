@@ -53,9 +53,10 @@ RUN \
   setcap -r \
     /usr/sbin/kwin_wayland && \
   echo "**** kde tweaks ****" && \
+  ([ -f /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml ] && \
   sed -i \
     's/applications:org.kde.discover.desktop,/applications:org.kde.konsole.desktop,/g' \
-    /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml && \
+    /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml || true) && \
   echo "**** create VS Code desktop entry ****" && \
   mkdir -p /usr/share/applications && \
   printf '%s\n' \
