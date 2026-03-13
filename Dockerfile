@@ -80,8 +80,6 @@ RUN \
   sed -i 's|/bin/sh$|/bin/bash|g' /etc/passwd && \
   echo "**** create user directories ****" && \
   mkdir -p /config/Documents && \
-  echo "**** make wrapped-chromium executable ****" && \
-  chmod +x /usr/local/bin/wrapped-chromium && \
   echo "**** cleanup ****" && \
   rm -rf \
     /config/.cache \
@@ -92,6 +90,8 @@ RUN \
 
 # add local files
 COPY /root /
+
+RUN chmod +x /usr/local/bin/wrapped-chromium
 
 # ports and volumes
 EXPOSE 3000
