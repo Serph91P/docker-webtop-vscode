@@ -1,0 +1,24 @@
+services:
+  webtop-vscode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webtop-vscode
+    image: webtop-vscode:latest
+    security_opt:
+      - seccomp=unconfined
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - TITLE=Arch KDE VSCode
+      # Optional: set password for web access (default: no auth)
+      # - PASSWORD=yourpassword
+      # - CUSTOM_USER=abc
+    volumes:
+      - ./config:/config
+    ports:
+      - "3000:3000"   # HTTP
+      - "3001:3001"   # HTTPS
+    shm_size: "2gb"
+    restart: unless-stopped
