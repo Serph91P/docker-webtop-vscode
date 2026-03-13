@@ -67,7 +67,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}
           tags: |
             type=raw,value=${{ steps.version.outputs.new_tag }}
             type=raw,value=latest
@@ -93,11 +93,11 @@ jobs:
             Pull the image from GitHub Container Registry:
 
             ```bash
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.new_tag }}
+            docker pull ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:${{ steps.version.outputs.new_tag }}
             ```
 
             Or use `latest`:
 
             ```bash
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            docker pull ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:latest
             ```
