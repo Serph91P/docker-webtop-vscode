@@ -19,12 +19,16 @@ RUN \
     https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/webtop-logo.png && \
   echo "**** install KDE packages ****" && \
   pacman -S --noconfirm --needed \
+    bash \
     cargo \
     chromium \
     dolphin \
     firefox \
+    git \
     kate \
     konsole \
+    kwallet \
+    kwalletmanager \
     kwin-x11 \
     plasma-desktop \
     plasma-x11-session && \
@@ -44,8 +48,7 @@ RUN \
   pacman -S --noconfirm --needed \
     libxkbfile \
     nss \
-    libsecret \
-    gnome-keyring && \
+    libsecret && \
   echo "**** application tweaks ****" && \
   sed -i \
     's#^Exec=.*#Exec=/usr/local/bin/wrapped-chromium#g' \
@@ -64,7 +67,7 @@ RUN \
     'Name=Visual Studio Code' \
     'Comment=Code Editing. Redefined.' \
     'GenericName=Text Editor' \
-    'Exec=/usr/local/bin/code --no-sandbox --unity-launch %F' \
+    'Exec=/usr/local/bin/code --no-sandbox --password-store=basic --unity-launch %F' \
     'Icon=/opt/vscode/resources/app/resources/linux/code.png' \
     'Type=Application' \
     'StartupNotify=false' \
@@ -73,6 +76,12 @@ RUN \
     'MimeType=text/plain;inode/directory;' \
     'Keywords=vscode;' \
     > /usr/share/applications/code.desktop && \
+  echo "**** set bash as default shell ****" && \
+  sed -i 's|/bin/sh$|/bin/bash|g' /etc/passwd && \
+  echo "**** create user directories ****" && \
+  mkdir -p /config/Documents && \
+  echo "**** make wrapped-chromium executable ****" && \
+  chmod +x /usr/local/bin/wrapped-chromium && \
   echo "**** cleanup ****" && \
   rm -rf \
     /config/.cache \
