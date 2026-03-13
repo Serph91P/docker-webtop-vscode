@@ -49,6 +49,39 @@ RUN \
     libxkbfile \
     nss \
     libsecret && \
+  echo "**** install docker, python, node, nvm, docker-compose ****" && \
+  pacman -S --noconfirm --needed \
+    docker \
+    docker-compose \
+    python \
+    python-pip \
+    python-virtualenv \
+    nodejs \
+    npm && \
+  echo "**** install PHP & Composer (m3u-editor/Laravel) ****" && \
+  pacman -S --noconfirm --needed \
+    php \
+    php-gd \
+    php-intl \
+    php-redis \
+    php-sqlite \
+    php-pgsql \
+    composer && \
+  echo "**** install dev tools (FFmpeg, PostgreSQL, Redis) ****" && \
+  pacman -S --noconfirm --needed \
+    ffmpeg \
+    postgresql-libs \
+    redis \
+    base-devel \
+    make \
+    gcc \
+    openssl && \
+  echo "**** install nvm ****" && \
+  export NVM_DIR="/usr/share/nvm" && \
+  mkdir -p "$NVM_DIR" && \
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | NVM_DIR="$NVM_DIR" bash && \
+  echo 'export NVM_DIR="/usr/share/nvm"' >> /etc/profile.d/nvm.sh && \
+  echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"' >> /etc/profile.d/nvm.sh && \
   echo "**** application tweaks ****" && \
   sed -i \
     's#^Exec=.*#Exec=/usr/local/bin/wrapped-chromium#g' \
