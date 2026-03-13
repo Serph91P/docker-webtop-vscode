@@ -1,0 +1,48 @@
+extension_groups:
+  code_files: &code_files
+    - txt
+    - md
+    - py
+    - js
+    - ts
+    - html
+    - css
+    - scss
+    - json
+    - yaml
+    - yml
+    - toml
+    - xml
+    - sh
+    - bash
+    - java
+    - kt
+    - c
+    - cpp
+    - h
+    - cs
+    - go
+    - rs
+    - rb
+    - php
+
+apps:
+- id: "webtop-vscode"
+  name: "VS Code (KDE Arch)"
+  logo: "https://raw.githubusercontent.com/Serph91P/docker-webtop-vscode/refs/heads/main/logo.png"
+  url: "https://github.com/Serph91P/docker-webtop-vscode"
+  provider: "docker"
+  provider_config:
+    image: "ghcr.io/serph91p/docker-webtop-vscode:latest"
+    port: 3000
+    nvidia_support: true
+    dri3_support: true
+    type: "desktop"
+    autostart: false
+    url_support: false
+    open_support: true
+    extensions:
+      - *code_files
+    docker_overrides:
+      security_opt:
+        - "seccomp=unconfined"
