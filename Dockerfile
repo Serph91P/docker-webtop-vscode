@@ -4,7 +4,7 @@ FROM ghcr.io/linuxserver/baseimage-selkies:arch
 ARG BUILD_DATE
 ARG VERSION
 LABEL build_version="Custom Arch KDE + VSCode image - Build-date:- ${BUILD_DATE}"
-LABEL maintainer="max.ebert"
+LABEL maintainer="Serph91P
 
 # title
 ENV TITLE="Arch KDE VSCode" \
@@ -80,8 +80,6 @@ RUN \
   sed -i 's|/bin/sh$|/bin/bash|g' /etc/passwd && \
   echo "**** create user directories ****" && \
   mkdir -p /config/Documents && \
-  echo "**** make wrapped-chromium executable ****" && \
-  chmod +x /usr/local/bin/wrapped-chromium && \
   echo "**** cleanup ****" && \
   rm -rf \
     /config/.cache \
@@ -92,6 +90,8 @@ RUN \
 
 # add local files
 COPY /root /
+
+RUN chmod +x /usr/local/bin/wrapped-chromium
 
 # ports and volumes
 EXPOSE 3000
