@@ -16,7 +16,7 @@ RUN \
   echo "**** add icon ****" && \
   curl -o \
     /usr/share/selkies/www/icon.png \
-    https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/webtop-logo.png && \
+    https://raw.githubusercontent.com/microsoft/vscode/main/resources/linux/code.png && \
   echo "**** install KDE packages ****" && \
   pacman -S --noconfirm --needed \
     bash \

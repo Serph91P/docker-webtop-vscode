@@ -29,7 +29,7 @@ extension_groups:
 apps:
 - id: "webtop-vscode"
   name: "VS Code (KDE Arch)"
-  logo: "https://raw.githubusercontent.com/Serph91P/docker-webtop-vscode/refs/heads/main/logo.png"
+  logo: "https://raw.githubusercontent.com/microsoft/vscode/main/resources/linux/code.png"
   url: "https://github.com/Serph91P/docker-webtop-vscode"
   provider: "docker"
   provider_config:
