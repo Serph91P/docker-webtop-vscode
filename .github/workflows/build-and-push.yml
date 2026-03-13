@@ -1,12 +1,14 @@
-name: Build and Push Docker Image
+name: Release
 
 on:
   push:
     branches:
       - main
-    tags:
-      - 'v*.*.*'
   workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
@@ -27,7 +29,6 @@ jobs:
 
       - name: Auto-increment version tag
         id: version
-        if: github.ref == 'refs/heads/main'
         run: |
           git fetch --tags
           LATEST_TAG=$(git tag -l 'v*.*.*' --sort=-v:refname | head -n1)
@@ -46,15 +47,6 @@ jobs:
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
 
-      - name: Determine version
-        id: current_version
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=${{ steps.version.outputs.new_tag }}" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -71,7 +63,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ steps.current_version.outputs.tag }}
+            type=raw,value=${{ steps.version.outputs.new_tag }}
             type=raw,value=latest
 
       - name: Build and push Docker image
@@ -87,7 +79,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.current_version.outputs.tag }}
+          tag_name: ${{ steps.version.outputs.new_tag }}
           generate_release_notes: true
           body: |
             ## Docker Image
@@ -95,7 +87,7 @@ jobs:
             Pull the image from GitHub Container Registry:
 
             ```bash
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.current_version.outputs.tag }}
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.new_tag }}
             ```
 
             Or use `latest`:
