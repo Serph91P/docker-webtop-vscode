@@ -1,8 +1,59 @@
 #!/usr/bin/with-contenv bash
 
-# Plex autostart - direct launch without desktop environment
+# Plex HTPC autostart - minimal compositor setup
+set -x
+
 export QT_QPA_PLATFORM=wayland
 export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=KDE
+export KDE_SESSION_VERSION=6
 export PULSE_SERVER=unix:/tmp/pulse/native
+export WAYLAND_DISPLAY=wayland-0
 
-exec Plex
+# Create pulse socket dir
+mkdir -p /tmp/pulse
+pulseaudio --start --exit-idle-time=-1 2>/dev/null || true
+
+# Setup XDG directories
+mkdir -p "$HOME/.config/autostart" "$HOME/.XDG" "$HOME/.local/share"
+touch "$HOME/.local/share/user-places.xbel"
+
+# Start pulse if not running
+if ! pgrep -x pulseaudio > /dev/null; then
+    pulseaudio --start --exit-idle-time=-1 --daemonize=false 2>/dev/null || true
+fi
+
+# Kill any existing kwin
+pkill -9 kwin_wayland 2>/dev/null || true
+sleep 1
+
+# Start kwin in background with logging
+dbus-run-session bash -c '
+    export WAYLAND_DISPLAY=wayland-0
+    export QT_QPA_PLATFORM=wayland
+    export XDG_CURRENT_DESKTOP=KDE
+    export XDG_SESSION_TYPE=wayland
+
+    # Start kwin with debug
+    kwin_wayland --no-lockscreen --no-global-shortcuts --xwayland 2>&1 | tee /tmp/kwin.log &
+    KWIN_PID=$!
+
+    sleep 3
+
+    # Check if kwin is running
+    if pgrep -x kwin_wayland > /dev/null; then
+        echo "kwin started successfully" >> /tmp/kwin.log
+        # Launch Plex
+        Plex &
+    else
+        echo "kwin failed to start" >> /tmp/kwin.log
+        # Try launching Plex anyway with wayland platform
+        WAYLAND_DISPLAY=wayland-0 Plex &
+    fi
+
+    # Keep kwin alive
+    wait $KWIN_PID 2>/dev/null
+' &
+
+# Return control to keep container alive
+sleep infinity

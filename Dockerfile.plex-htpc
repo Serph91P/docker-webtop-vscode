@@ -91,8 +91,8 @@ RUN \
 # Copy custom scripts
 COPY root-plex/ /
 
-# Make start script executable
-RUN chmod +x /defaults/startwm_wayland.sh /usr/local/bin/run-plex
+# Make scripts executable
+RUN chmod +x /defaults/autostart /defaults/startwm_wayland.sh /usr/local/bin/run-plex
 
 EXPOSE 3000
 
