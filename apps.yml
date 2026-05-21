@@ -63,14 +63,3 @@ apps:
     open_support: false
     extensions: []
     docker_overrides:
-      security_opt:
-        - "seccomp=unconfined"
-      environment:
-        - "TITLE=Plex HTPC"
-        - "PIXELFLUX_WAYLAND=true"
-        - "AUTO_GPU=true"
-        - "SELKIES_DESKTOP=false"
-        - "NO_DECOR=true"
-      devices:
-        - "/dev/dri:/dev/dri"
-      shm_size: "1gb"
