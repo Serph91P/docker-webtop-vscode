@@ -26,15 +26,17 @@ jobs:
         include:
           - name: webtop-vscode
             dockerfile: Dockerfile
+            image_name: docker-webtop-vscode
             latest_tag: latest
             version_tag_prefix: ""
-          - name: plex-htpc
+          - name: webtop-plex
             dockerfile: Dockerfile.plex-htpc
-            latest_tag: plex-htpc
-            version_tag_prefix: plex-htpc-
+            image_name: docker-webtop-plex
+            latest_tag: latest
+            version_tag_prefix: ""
 
     env:
-      IMAGE_NAME: ${{ github.repository }}
+      IMAGE_NAME: ${{ matrix.image_name }}
 
     steps:
       - name: Lowercase image name
@@ -124,5 +126,5 @@ jobs:
             Pull the Plex HTPC image:
 
             ```bash
-            docker pull ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:plex-htpc
+            docker pull ghcr.io/serph91p/docker-webtop-plex:latest
             ```
