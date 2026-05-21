@@ -25,47 +25,36 @@ RUN \
     gcc-libs \
     git \
     glib2 \
+    gwenview \
     harfbuzz \
     hicolor-icon-theme \
-    lcms2 \
-    libdrm \
-    libjpeg-turbo \
+    kcm-wacomtablet \
+    kconfig \
+    kcoreaddons \
+    kdecoration \
+    kdesdk-kate-part \
+    kio \
+    konsole \
+    kwayland \
+    kwayland-integration \
+    kwidgetsaddons \
+    kwin \
+    libglvnd \
     libpulse \
-    libva \
-    libwebp \
-    libx11 \
-    libxcb \
-    libxcomposite \
-    libxdamage \
-    libxext \
-    libxfixes \
-    libxinerama \
     libxkbcommon \
-    libxkbcommon-x11 \
-    libxkbfile \
-    libxml2-legacy \
-    libxrandr \
-    libxrender \
-    libxslt \
-    libxss \
-    libxtst \
-    mesa \
-    minizip \
-    nspr \
-    nss \
-    opus \
-    pciutils \
+    plasma-desktop \
+    plasma-integration \
+    plasma-systemstats \
     qt6-base \
     qt6-wayland \
-    snappy \
-    squashfs-tools \
-    vulkan-radeon \
-    wayland \
+    sddm-kcm \
+    spectacle \
     xcb-util-image \
     xcb-util-keysyms \
     xcb-util-renderutil \
     xcb-util-wm \
-    zlib && \
+    xwayland \
+    yakuake && \
   echo "**** build Plex HTPC from AUR ****" && \
   useradd -m builder && \
   echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder && \
@@ -88,11 +77,13 @@ RUN \
     /var/cache/pacman/pkg/* \
     /var/lib/pacman/sync/*
 
-# Copy custom scripts
+# Custom entrypoint - direct Plex launch, no selkies desktop manager
 COPY root-plex/ /
 
-# Make scripts executable
-RUN chmod +x /defaults/autostart /defaults/startwm_wayland.sh /usr/local/bin/run-plex
+RUN chmod +x /defaults/autostart /defaults/startwm_wayland.sh /usr/local/bin/run-plex /usr/local/bin/docker-entrypoint
+
+# Override selkies entrypoint to launch our direct Plex session
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 
 EXPOSE 3000
 

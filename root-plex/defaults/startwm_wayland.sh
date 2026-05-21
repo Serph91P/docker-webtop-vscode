@@ -84,17 +84,19 @@ if [ ! -f "/etc/xdg/menus/applications.menu" ]; then
 fi
 kbuildsycoca6
 
+# Wayland Hacks
+if ! grep -q "ozone-platform" /usr/local/bin/wrapped-chromium > /dev/null 2>&1; then
+  sudo sed -i 's/--password/--ozone-platform=wayland --password/g' /usr/local/bin/wrapped-chromium
+fi
+
 # Export variables globally so all children inherit them
 export QT_QPA_PLATFORM=wayland
 export XDG_CURRENT_DESKTOP=KDE
 export XDG_SESSION_TYPE=wayland
 export KDE_SESSION_VERSION=6
-export PULSE_SERVER=unix:/tmp/pulse/native
 unset DISPLAY
-
-# Start minimal Wayland with kwin
 dbus-run-session bash -c '
-    WAYLAND_DISPLAY=wayland-1 kwin_wayland --no-lockscreen --no-global-shortcuts &
+    WAYLAND_DISPLAY=wayland-1 kwin_wayland --no-lockscreen &
     KWIN_PID=$!
     sleep 2
     if [ -f /usr/lib/libexec/polkit-kde-authentication-agent-1 ]; then
@@ -102,16 +104,6 @@ dbus-run-session bash -c '
     elif [ -f /usr/libexec/polkit-kde-authentication-agent-1 ]; then
         /usr/libexec/polkit-kde-authentication-agent-1
     fi
-
-    # Launch Plex immediately
-    export WAYLAND_DISPLAY=wayland-1
-    Plex &
-    PLEX_PID=$!
-
-    # Run plasmashell but hide it
-    plasmashell &
-    PLASMA_PID=$!
-
-    # Wait for either Plex or kwin to exit
-    wait $KWIN_PID 2>/dev/null
-'
+    WAYLAND_DISPLAY=wayland-0 plasmashell
+    kill $KWIN_PID
+' > /dev/null 2>&1

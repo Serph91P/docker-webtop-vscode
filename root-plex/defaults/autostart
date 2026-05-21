@@ -1,59 +1,52 @@
 #!/usr/bin/with-contenv bash
 
-# Plex HTPC autostart - minimal compositor setup
-set -x
+# Plex direct launch - bypass selkies desktop manager
+# We start our own minimal wayland session
 
 export QT_QPA_PLATFORM=wayland
 export XDG_SESSION_TYPE=wayland
 export XDG_CURRENT_DESKTOP=KDE
 export KDE_SESSION_VERSION=6
-export PULSE_SERVER=unix:/tmp/pulse/native
 export WAYLAND_DISPLAY=wayland-0
+unset DISPLAY
+unset XDG_RUNTIME_DIR
 
-# Create pulse socket dir
-mkdir -p /tmp/pulse
-pulseaudio --start --exit-idle-time=-1 2>/dev/null || true
+# Create our own XDG runtime dir
+mkdir -p /config/.XDG
+export XDG_RUNTIME_DIR=/config/.XDG
 
-# Setup XDG directories
-mkdir -p "$HOME/.config/autostart" "$HOME/.XDG" "$HOME/.local/share"
-touch "$HOME/.local/share/user-places.xbel"
-
-# Start pulse if not running
-if ! pgrep -x pulseaudio > /dev/null; then
-    pulseaudio --start --exit-idle-time=-1 --daemonize=false 2>/dev/null || true
-fi
-
-# Kill any existing kwin
+# Kill any existing kwin/xwayland
 pkill -9 kwin_wayland 2>/dev/null || true
+pkill -9 Xwayland 2>/dev/null || true
 sleep 1
 
-# Start kwin in background with logging
-dbus-run-session bash -c '
+# Start dbus
+mkdir -p /var/run/dbus
+dbus-daemon --system --fork 2>/dev/null || true
+dbus-run-session -- sh -c '
+    # Start our own kwin
     export WAYLAND_DISPLAY=wayland-0
     export QT_QPA_PLATFORM=wayland
     export XDG_CURRENT_DESKTOP=KDE
     export XDG_SESSION_TYPE=wayland
 
-    # Start kwin with debug
-    kwin_wayland --no-lockscreen --no-global-shortcuts --xwayland 2>&1 | tee /tmp/kwin.log &
+    kwin_wayland --no-lockscreen --no-global-shortcuts --xwayland &>/tmp/kwin.log &
     KWIN_PID=$!
 
     sleep 3
 
-    # Check if kwin is running
+    # Verify kwin started
     if pgrep -x kwin_wayland > /dev/null; then
-        echo "kwin started successfully" >> /tmp/kwin.log
-        # Launch Plex
-        Plex &
+        echo "kwin started, launching Plex" > /tmp/kwin.log
+        export WAYLAND_DISPLAY=wayland-0
+        exec Plex --platform=wayland &>/tmp/plex.log
     else
-        echo "kwin failed to start" >> /tmp/kwin.log
-        # Try launching Plex anyway with wayland platform
-        WAYLAND_DISPLAY=wayland-0 Plex &
+        echo "kwin failed to start" > /tmp/kwin.log
+        cat /tmp/kwin.log
     fi
 
-    # Keep kwin alive
     wait $KWIN_PID 2>/dev/null
 ' &
 
-# Return control to keep container alive
+# Keep container alive
 sleep infinity

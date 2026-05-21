@@ -1,0 +1,60 @@
+#!/bin/bash
+# Plex direct entrypoint - bypasses selkies desktop manager entirely
+# Starts minimal Wayland session with kwin and launches Plex fullscreen
+
+set -e
+
+echo "[entrypoint] Starting Plex HTPC direct mode"
+
+# Ensure we have a XDG runtime dir
+mkdir -p /config/.XDG
+export XDG_RUNTIME_DIR=/config/.XDG
+
+# Clear any leftover display vars
+unset DISPLAY
+unset WAYLAND_DISPLAY
+
+# Kill any existing wayland sessions
+pkill -9 kwin_wayland 2>/dev/null || true
+pkill -9 Xwayland 2>/dev/null || true
+pkill -9 dbus-daemon 2>/dev/null || true
+sleep 1
+
+# Start system dbus
+mkdir -p /var/run/dbus
+dbus-daemon --system --fork || true
+sleep 0.5
+
+# Start our own session dbus and wayland session
+dbus-run-session -- sh -c '
+    export XDG_RUNTIME_DIR=/config/.XDG
+    export WAYLAND_DISPLAY=wayland-0
+    export QT_QPA_PLATFORM=wayland
+    export XDG_SESSION_TYPE=wayland
+    export XDG_CURRENT_DESKTOP=KDE
+    export KDE_SESSION_VERSION=6
+
+    echo "[entrypoint] Starting kwin_wayland"
+    kwin_wayland --no-lockscreen --no-global-shortcuts --xwayland &>/tmp/kwin.log &
+    KWIN_PID=$!
+
+    sleep 3
+
+    # Verify kwin started
+    if pgrep -x kwin_wayland > /dev/null; then
+        echo "[entrypoint] kwin running, launching Plex"
+        chmod 644 /tmp/kwin.log 2>/dev/null || true
+        chmod 644 /tmp/plex.log 2>/dev/null || true
+
+        export WAYLAND_DISPLAY=wayland-0
+        exec Plex --platform=wayland &>/tmp/plex.log
+    else
+        echo "[entrypoint] kwin FAILED to start"
+        cat /tmp/kwin.log 2>/dev/null
+        sleep 5
+    fi
+' &
+
+# Keep container alive
+echo "[entrypoint] Session started, waiting..."
+wait
