@@ -46,3 +46,30 @@ apps:
     docker_overrides:
       security_opt:
         - "seccomp=unconfined"
+
+- id: "plex-htpc-selkies"
+  name: "Plex HTPC (Selkies)"
+  logo: "https://raw.githubusercontent.com/flathub/tv.plex.PlexHTPC/master/tv.plex.PlexHTPC.png"
+  url: "https://github.com/Serph91P/docker-webtop-vscode"
+  provider: "docker"
+  provider_config:
+    image: "ghcr.io/serph91p/docker-webtop-vscode:plex-htpc"
+    port: 3000
+    nvidia_support: true
+    dri3_support: true
+    type: "desktop"
+    autostart: false
+    url_support: false
+    open_support: false
+    docker_overrides:
+      security_opt:
+        - "seccomp=unconfined"
+      environment:
+        - "TITLE=Plex HTPC"
+        - "PIXELFLUX_WAYLAND=true"
+        - "AUTO_GPU=true"
+        - "SELKIES_DESKTOP=false"
+        - "NO_DECOR=true"
+      devices:
+        - "/dev/dri:/dev/dri"
+      shm_size: "1gb"

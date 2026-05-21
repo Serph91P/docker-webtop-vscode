@@ -22,3 +22,35 @@ services:
       - "3001:3001"   # HTTPS
     shm_size: "2gb"
     restart: unless-stopped
+
+  plex-htpc:
+    profiles:
+      - plex
+    build:
+      context: .
+      dockerfile: Dockerfile.plex-htpc
+    container_name: plex-htpc
+    image: plex-htpc:latest
+    security_opt:
+      - seccomp=unconfined
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - TITLE=Plex HTPC
+      - PIXELFLUX_WAYLAND=true
+      - AUTO_GPU=true
+      - SELKIES_DESKTOP=false
+      - NO_DECOR=true
+      # Optional: set password for web access (default: no auth)
+      # - PASSWORD=yourpassword
+      # - CUSTOM_USER=abc
+    volumes:
+      - ./plex-config:/config
+    devices:
+      - /dev/dri:/dev/dri
+    ports:
+      - "3010:3000"   # HTTP
+      - "3011:3001"   # HTTPS
+    shm_size: "1gb"
+    restart: unless-stopped

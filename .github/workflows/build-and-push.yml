@@ -20,6 +20,19 @@ jobs:
       contents: write
       packages: write
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: webtop-vscode
+            dockerfile: Dockerfile
+            latest_tag: latest
+            version_tag_prefix: ""
+          - name: plex-htpc
+            dockerfile: Dockerfile.plex-htpc
+            latest_tag: plex-htpc
+            version_tag_prefix: plex-htpc-
+
     env:
       IMAGE_NAME: ${{ github.repository }}
 
@@ -47,16 +60,19 @@ jobs:
             NEW_PATCH=$((PATCH + 1))
             NEW_TAG="${MAJOR}.${MINOR}.${NEW_PATCH}"
           fi
-          # Skip if tag already exists (e.g. from a cancelled previous run)
           while git rev-parse "$NEW_TAG" >/dev/null 2>&1; do
             NEW_PATCH=$((NEW_PATCH + 1))
             NEW_TAG="${MAJOR}.${MINOR}.${NEW_PATCH}"
           done
           echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push version tag
+        if: matrix.name == 'webtop-vscode'
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "$NEW_TAG"
-          git push origin "$NEW_TAG"
+          git tag "${{ steps.version.outputs.new_tag }}"
+          git push origin "${{ steps.version.outputs.new_tag }}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -68,34 +84,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}
-          tags: |
-            type=raw,value=${{ steps.version.outputs.new_tag }}
-            type=raw,value=latest
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:${{ matrix.latest_tag }}
+            ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:${{ matrix.version_tag_prefix }}${{ steps.version.outputs.new_tag }}
+          labels: |
+            org.opencontainers.image.title=${{ matrix.name }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.version.outputs.new_tag }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
       - name: Create GitHub Release
+        if: matrix.name == 'webtop-vscode'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.new_tag }}
           generate_release_notes: true
           body: |
-            ## Docker Image
+            ## Docker Images
 
-            Pull the image from GitHub Container Registry:
+            Pull the VS Code image from GitHub Container Registry:
 
             ```bash
             docker pull ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:${{ steps.version.outputs.new_tag }}
@@ -105,4 +119,10 @@ jobs:
 
             ```bash
             docker pull ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:latest
+            ```
+
+            Pull the Plex HTPC image:
+
+            ```bash
+            docker pull ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:plex-htpc
             ```
