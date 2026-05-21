@@ -5,11 +5,10 @@ ARG VERSION
 LABEL build_version="Custom Arch Plex HTPC image - Build-date:- ${BUILD_DATE}"
 LABEL maintainer="Serph91P"
 
+# Only Plex app, no desktop environment auto-start
 ENV TITLE="Plex HTPC" \
-    NO_GAMEPAD=false \
-    NO_DECOR=true \
-    SELKIES_DESKTOP=false \
-    PIXELFLUX_WAYLAND=true
+    NO_GAMEPAD=true \
+    NO_DECOR=true
 
 RUN \
   echo "**** update system to latest ****" && \
@@ -89,7 +88,11 @@ RUN \
     /var/cache/pacman/pkg/* \
     /var/lib/pacman/sync/*
 
-COPY /root-plex /
+# Copy custom scripts
+COPY root-plex/ /
+
+# Make start script executable
+RUN chmod +x /defaults/startwm_wayland.sh /usr/local/bin/run-plex
 
 EXPOSE 3000
 

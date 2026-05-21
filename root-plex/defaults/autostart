@@ -1,5 +1,6 @@
 #!/usr/bin/with-contenv bash
 
+# Plex autostart - direct launch without desktop environment
 export QT_QPA_PLATFORM=wayland
 export XDG_SESSION_TYPE=wayland
 export PULSE_SERVER=unix:/tmp/pulse/native

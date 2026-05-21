@@ -1,0 +1,13 @@
+#!/bin/bash
+# Plex HTPC launcher - ensures Wayland context
+
+export QT_QPA_PLATFORM=wayland
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=KDE
+
+# Ensure wayland display is set if kwin is running
+if [ -n "$WAYLAND_DISPLAY" ]; then
+    exec /usr/bin/Plex --platform=wayland "$@"
+else
+    exec /usr/bin/Plex "$@"
+fi
