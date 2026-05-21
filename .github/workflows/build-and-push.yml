@@ -43,6 +43,10 @@ jobs:
         id: repo
         run: echo "image_name=${IMAGE_NAME,,}" >> "$GITHUB_OUTPUT"
 
+      - name: Set full image path
+        id: image_path
+        run: echo "image_path=ghcr.io/${{ github.actor }}/${IMAGE_NAME,,}" >> "$GITHUB_OUTPUT"
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
@@ -93,8 +97,8 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:${{ matrix.latest_tag }}
-            ${{ env.REGISTRY }}/${{ steps.repo.outputs.image_name }}:${{ matrix.version_tag_prefix }}${{ steps.version.outputs.new_tag }}
+            ${{ steps.image_path.outputs.image_path }}:${{ matrix.latest_tag }}
+            ${{ steps.image_path.outputs.image_path }}:${{ matrix.version_tag_prefix }}${{ steps.version.outputs.new_tag }}
           labels: |
             org.opencontainers.image.title=${{ matrix.name }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
