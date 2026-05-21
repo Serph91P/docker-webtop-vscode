@@ -53,7 +53,7 @@ apps:
   url: "https://github.com/Serph91P/docker-webtop-vscode"
   provider: "docker"
   provider_config:
-    image: "ghcr.io/serph91p/docker-webtop-plex:v0.1.26"
+    image: "ghcr.io/serph91p/docker-webtop-plex:latest"
     port: 3000
     nvidia_support: true
     dri3_support: true
