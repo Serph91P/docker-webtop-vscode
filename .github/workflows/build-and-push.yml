@@ -45,7 +45,8 @@ jobs:
 
       - name: Set full image path
         id: image_path
-        run: echo "image_path=ghcr.io/${{ github.actor }}/docker-${{ matrix.name }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "image_path=ghcr.io/$(echo '${{ github.actor }}' | tr '[:upper:]' '[:lower:]')/docker-${{ matrix.name }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
         uses: actions/checkout@v6
