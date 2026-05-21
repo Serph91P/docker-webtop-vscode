@@ -61,6 +61,7 @@ apps:
     autostart: false
     url_support: false
     open_support: false
+    extensions: []
     docker_overrides:
       security_opt:
         - "seccomp=unconfined"
