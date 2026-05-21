@@ -2,8 +2,6 @@
 # Plex direct entrypoint - bypasses selkies desktop manager entirely
 # Starts minimal Wayland session with kwin and launches Plex fullscreen
 
-set -e
-
 echo "[entrypoint] Starting Plex HTPC direct mode"
 
 # Ensure we have a XDG runtime dir
@@ -14,7 +12,7 @@ export XDG_RUNTIME_DIR=/config/.XDG
 unset DISPLAY
 unset WAYLAND_DISPLAY
 
-# Kill any existing wayland sessions
+# Kill any existing wayland sessions (ignore errors)
 pkill -9 kwin_wayland 2>/dev/null || true
 pkill -9 Xwayland 2>/dev/null || true
 pkill -9 dbus-daemon 2>/dev/null || true
@@ -22,7 +20,7 @@ sleep 1
 
 # Start system dbus
 mkdir -p /var/run/dbus
-dbus-daemon --system --fork || true
+dbus-daemon --system --fork 2>/dev/null || true
 sleep 0.5
 
 # Start our own session dbus and wayland session
@@ -50,11 +48,11 @@ dbus-run-session -- sh -c '
         exec Plex --platform=wayland &>/tmp/plex.log
     else
         echo "[entrypoint] kwin FAILED to start"
-        cat /tmp/kwin.log 2>/dev/null
-        sleep 5
+        cat /tmp/kwin.log 2>/dev/null || echo "no kwin log"
+        sleep infinity
     fi
-' &
+'
 
-# Keep container alive
-echo "[entrypoint] Session started, waiting..."
-wait
+# Only reached if dbus-run-session exits (shouldn't happen)
+echo "[entrypoint] Session ended unexpectedly, sleeping to keep container alive"
+sleep infinity
