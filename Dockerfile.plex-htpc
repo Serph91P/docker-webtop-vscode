@@ -7,8 +7,12 @@ LABEL maintainer="Serph91P"
 
 # Only Plex app, no desktop environment auto-start
 ENV TITLE="Plex HTPC" \
+    PIXELFLUX_WAYLAND=true \
+    SELKIES_DESKTOP=false \
+    AUTO_GPU=true \
     NO_GAMEPAD=true \
-    NO_DECOR=true
+    NO_DECOR=true \
+    RESTART_APP=true
 
 RUN \
   echo "**** update system to latest ****" && \
@@ -77,13 +81,10 @@ RUN \
     /var/cache/pacman/pkg/* \
     /var/lib/pacman/sync/*
 
-# Custom entrypoint - direct Plex launch, no selkies desktop manager
+# Custom files: Plex autostart for LinuxServer Selkies session
 COPY root-plex/ /
 
-RUN chmod +x /defaults/autostart /defaults/startwm_wayland.sh /usr/local/bin/run-plex /usr/local/bin/docker-entrypoint
-
-# Override selkies entrypoint to launch our direct Plex session
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
+RUN chmod +x /defaults/autostart /defaults/autostart_wayland /defaults/startwm_wayland.sh /usr/local/bin/run-plex
 
 EXPOSE 3000
 
