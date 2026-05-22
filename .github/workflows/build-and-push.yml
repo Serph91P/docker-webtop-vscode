@@ -67,6 +67,7 @@ jobs:
             NEW_PATCH=$((PATCH + 1))
             NEW_TAG="${MAJOR}.${MINOR}.${NEW_PATCH}"
           fi
+          # Skip if tag already exists (e.g. from a cancelled previous run)
           while git rev-parse "$NEW_TAG" >/dev/null 2>&1; do
             NEW_PATCH=$((NEW_PATCH + 1))
             NEW_TAG="${MAJOR}.${MINOR}.${NEW_PATCH}"
@@ -109,7 +110,8 @@ jobs:
 
       - name: Create GitHub Release
         if: matrix.name == 'webtop-vscode'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
+
         with:
           tag_name: ${{ steps.version.outputs.new_tag }}
           generate_release_notes: true
