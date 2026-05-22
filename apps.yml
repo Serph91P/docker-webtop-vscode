@@ -46,3 +46,20 @@ apps:
     docker_overrides:
       security_opt:
         - "seccomp=unconfined"
+
+- id: "webtop-plex"
+  name: "Plex HTPC"
+  logo: "https://raw.githubusercontent.com/flathub/tv.plex.PlexHTPC/master/tv.plex.PlexHTPC.png"
+  url: "https://github.com/Serph91P/docker-webtop-vscode"
+  provider: "docker"
+  provider_config:
+    image: "ghcr.io/serph91p/docker-webtop-plex:latest"
+    port: 3000
+    nvidia_support: true
+    dri3_support: true
+    type: "desktop"
+    autostart: false
+    url_support: false
+    open_support: false
+    extensions: []
+    docker_overrides:

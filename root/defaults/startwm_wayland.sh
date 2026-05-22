@@ -96,7 +96,7 @@ export XDG_SESSION_TYPE=wayland
 export KDE_SESSION_VERSION=6
 unset DISPLAY
 dbus-run-session bash -c '
-    WAYLAND_DISPLAY=wayland-1 kwin_wayland --no-lockscreen &
+    WAYLAND_DISPLAY=wayland-1 kwin_wayland --no-lockscreen --xwayland &
     KWIN_PID=$!
     sleep 2
     if [ -f /usr/lib/libexec/polkit-kde-authentication-agent-1 ]; then

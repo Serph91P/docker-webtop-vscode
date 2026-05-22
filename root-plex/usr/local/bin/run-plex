@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Plex HTPC launcher for LinuxServer Selkies/Labwc.
+
+set -u
+
+export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland}"
+export XDG_SESSION_TYPE="${XDG_SESSION_TYPE:-wayland}"
+export XDG_CURRENT_DESKTOP="${XDG_CURRENT_DESKTOP:-KDE}"
+
+candidates=(
+  /usr/bin/Plex
+  /opt/plex-htpc/Plex.sh
+  /opt/plex-htpc/bin/Plex
+)
+
+for candidate in "${candidates[@]}"; do
+  if [ -x "$candidate" ]; then
+    echo "[run-plex] launching: $candidate $*"
+    exec "$candidate" "$@"
+  fi
+done
+
+echo "[run-plex] ERROR: Plex executable not found"
+echo "[run-plex] PATH=$PATH"
+echo "[run-plex] /usr/bin matches:"
+ls -la /usr/bin/Plex /usr/bin/plex* 2>/dev/null || true
+echo "[run-plex] /opt matches:"
+ls -la /opt /opt/plex-htpc /opt/plex-htpc/* 2>/dev/null || true
+exit 127

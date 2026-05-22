@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# X11 fallback for hosts without AVX2/Wayland support.
+exec /usr/local/bin/run-plex >> /tmp/plex.log 2>&1

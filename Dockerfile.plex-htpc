@@ -1,0 +1,90 @@
+FROM ghcr.io/linuxserver/baseimage-selkies:arch
+
+ARG BUILD_DATE
+ARG VERSION
+LABEL build_version="Custom Arch Plex HTPC image - Build-date:- ${BUILD_DATE}"
+LABEL maintainer="Serph91P"
+
+# Only Plex app, no desktop environment auto-start
+ENV TITLE="Plex HTPC" \
+    PIXELFLUX_WAYLAND=true \
+    SELKIES_DESKTOP=false \
+    AUTO_GPU=true \
+    NO_GAMEPAD=true \
+    NO_DECOR=true
+
+RUN \
+  echo "**** update system to latest ****" && \
+  pacman -Syu --noconfirm && \
+  echo "**** install runtime packages ****" && \
+  pacman -S --noconfirm --needed \
+    alsa-lib \
+    base-devel \
+    dbus \
+    expat \
+    ffmpeg \
+    fontconfig \
+    freetype2 \
+    gcc-libs \
+    git \
+    glib2 \
+    gwenview \
+    harfbuzz \
+    hicolor-icon-theme \
+    kcm-wacomtablet \
+    kconfig \
+    kcoreaddons \
+    kdecoration \
+    kdesdk-kate-part \
+    kio \
+    konsole \
+    kwayland \
+    kwayland-integration \
+    kwidgetsaddons \
+    kwin \
+    libglvnd \
+    libpulse \
+    libxkbcommon \
+    plasma-desktop \
+    plasma-integration \
+    plasma-systemstats \
+    qt6-base \
+    qt6-wayland \
+    sddm-kcm \
+    spectacle \
+    xcb-util-image \
+    xcb-util-keysyms \
+    xcb-util-renderutil \
+    xcb-util-wm \
+    xwayland \
+    yakuake && \
+  echo "**** build Plex HTPC from AUR ****" && \
+  useradd -m builder && \
+  echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder && \
+  chmod 0440 /etc/sudoers.d/builder && \
+  sudo -u builder git clone https://aur.archlinux.org/plex-htpc.git /tmp/plex-htpc && \
+  cd /tmp/plex-htpc && \
+  sudo -u builder makepkg -si --noconfirm --needed && \
+  echo "**** add icon ****" && \
+  cp /usr/share/icons/hicolor/256x256/apps/tv.plex.PlexHTPC.png /usr/share/selkies/www/icon.png && \
+  echo "**** set bash as default shell ****" && \
+  sed -i 's|/bin/sh$|/bin/bash|g' /etc/passwd && \
+  echo "**** create user directories ****" && \
+  mkdir -p /config/Documents && \
+  echo "**** cleanup ****" && \
+  userdel -r builder || true && \
+  rm -rf \
+    /config/.cache \
+    /etc/sudoers.d/builder \
+    /tmp/* \
+    /var/cache/pacman/pkg/* \
+    /var/lib/pacman/sync/*
+
+# Custom files: Plex autostart for LinuxServer Selkies session
+COPY root-plex/ /
+
+RUN chmod +x /defaults/autostart /defaults/autostart_wayland /defaults/startwm_wayland.sh /usr/local/bin/run-plex
+
+EXPOSE 3000
+
+VOLUME /config
