@@ -64,7 +64,11 @@ RUN \
   chmod 0440 /etc/sudoers.d/builder && \
   sudo -u builder git clone https://aur.archlinux.org/plex-htpc.git /tmp/plex-htpc && \
   cd /tmp/plex-htpc && \
-  sudo -u builder makepkg -si --noconfirm --needed && \
+  sudo -u builder makepkg -s --noconfirm --needed && \
+  pacman -U --noconfirm /tmp/plex-htpc/*.pkg.tar.zst && \
+  pacman -Q plex-htpc && \
+  pacman -Ql plex-htpc | grep -E '/(Plex|Plex.sh)$' && \
+  (test -x /usr/bin/Plex || test -x /opt/plex-htpc/Plex.sh) && \
   echo "**** add icon ****" && \
   cp /usr/share/icons/hicolor/256x256/apps/tv.plex.PlexHTPC.png /usr/share/selkies/www/icon.png && \
   echo "**** set bash as default shell ****" && \
