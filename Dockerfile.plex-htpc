@@ -2,6 +2,7 @@ FROM ghcr.io/linuxserver/baseimage-selkies:arch
 
 ARG BUILD_DATE
 ARG VERSION
+ARG CACHE_BUST
 LABEL build_version="Custom Arch Plezy image - Build-date:- ${BUILD_DATE}"
 LABEL maintainer="Serph91P"
 
@@ -14,6 +15,7 @@ ENV TITLE="Plezy" \
     NO_DECOR=true
 
 RUN \
+  echo "**** cache bust ${CACHE_BUST} ****" && \
   echo "**** update system to latest ****" && \
   pacman -Syu --noconfirm && \
   echo "**** install runtime packages ****" && \

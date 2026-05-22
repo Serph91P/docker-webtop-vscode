@@ -105,6 +105,9 @@ jobs:
             org.opencontainers.image.title=${{ matrix.name }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.version=${{ steps.version.outputs.new_tag }}
+          build-args: |
+            CACHE_BUST=${{ github.sha }}-${{ github.run_id }}
+          no-cache: ${{ matrix.name == 'webtop-plex' }}
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
