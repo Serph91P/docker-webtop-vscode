@@ -28,7 +28,8 @@ RUN set -eux; \
     gtk3 \
     libepoxy \
     libevdev \
-    mpv; \
+    mpv \
+    xdg-user-dirs; \
   echo "**** install Plezy binary package ****"; \
   curl -fsSL -o /tmp/plezy-linux-x64.pkg.tar.zst \
     https://github.com/edde746/plezy/releases/download/2.1.0/plezy-linux-x64.pkg.tar.zst; \
@@ -55,6 +56,7 @@ RUN chmod +x /defaults/autostart /defaults/autostart_wayland /defaults/startwm_w
     echo "**** verify final Plezy image contents ****" && \
     ls -la /usr/bin/plezy /opt/plezy/plezy && \
     (/usr/local/bin/run-plex --version >/tmp/plezy-version.log 2>&1 || true) && \
+    HOME=/config XDG_CONFIG_HOME=/config/.config xdg-user-dir DOCUMENTS && \
     touch /tmp/plezy-version.log && \
     cat /tmp/plezy-version.log
 
