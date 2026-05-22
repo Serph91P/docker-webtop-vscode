@@ -11,8 +11,7 @@ ENV TITLE="Plex HTPC" \
     SELKIES_DESKTOP=false \
     AUTO_GPU=true \
     NO_GAMEPAD=true \
-    NO_DECOR=true \
-    RESTART_APP=true
+    NO_DECOR=true
 
 RUN \
   echo "**** update system to latest ****" && \
