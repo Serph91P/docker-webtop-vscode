@@ -14,58 +14,36 @@ ENV TITLE="Plezy" \
     NO_GAMEPAD=true \
     NO_DECOR=true
 
-RUN \
-  echo "**** cache bust ${CACHE_BUST} ****" && \
-  echo "**** update system to latest ****" && \
-  pacman -Syu --noconfirm && \
-  echo "**** install runtime packages ****" && \
+RUN set -eux; \
+  echo "**** cache bust ${CACHE_BUST} ****"; \
+  echo "**** update system to latest ****"; \
+  pacman -Syu --noconfirm; \
+  echo "**** install Plezy runtime packages ****"; \
   pacman -S --noconfirm --needed \
-    base-devel \
+    alsa-lib \
+    ca-certificates \
+    curl \
     dbus \
-    git \
+    glib2 \
     gtk3 \
-    gwenview \
-    kcm-wacomtablet \
-    kconfig \
-    kcoreaddons \
-    kdecoration \
-    kdesdk-kate-part \
-    kio \
-    konsole \
-    kwayland \
-    kwayland-integration \
-    kwidgetsaddons \
-    kwin \
     libepoxy \
     libevdev \
-    mpv \
-    plasma-desktop \
-    plasma-integration \
-    plasma-systemstats \
-    sddm-kcm \
-    spectacle \
-    xwayland \
-    yakuake && \
-  echo "**** build Plezy from AUR ****" && \
-  useradd -m builder && \
-  echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder && \
-  chmod 0440 /etc/sudoers.d/builder && \
-  sudo -u builder git clone https://aur.archlinux.org/plezy-bin.git /tmp/plezy-bin && \
-  cd /tmp/plezy-bin && \
-  sudo -u builder makepkg -s --noconfirm --needed && \
-  pacman -U --noconfirm /tmp/plezy-bin/*.pkg.tar.zst && \
-  (test -x /usr/bin/plezy || test -x /opt/plezy/plezy) && \
-  echo "**** add icon ****" && \
-  cp /usr/share/icons/hicolor/256x256/apps/plezy.png /usr/share/selkies/www/icon.png && \
-  echo "**** set bash as default shell ****" && \
-  sed -i 's|/bin/sh$|/bin/bash|g' /etc/passwd && \
-  echo "**** create user directories ****" && \
-  mkdir -p /config/Documents && \
-  echo "**** cleanup ****" && \
-  userdel -r builder || true && \
+    mpv; \
+  echo "**** install Plezy binary package ****"; \
+  curl -fsSL -o /tmp/plezy-linux-x64.pkg.tar.zst \
+    https://github.com/edde746/plezy/releases/download/2.1.0/plezy-linux-x64.pkg.tar.zst; \
+  echo "ccc57d6a20dcb1e485449b6b1c7ae6f9650599b86f250293d9fbd60c1b5f491c  /tmp/plezy-linux-x64.pkg.tar.zst" | sha256sum -c -; \
+  pacman -U --noconfirm /tmp/plezy-linux-x64.pkg.tar.zst; \
+  ls -la /usr/bin/plezy /opt/plezy/plezy; \
+  echo "**** add icon ****"; \
+  cp /usr/share/icons/hicolor/256x256/apps/plezy.png /usr/share/selkies/www/icon.png; \
+  echo "**** set bash as default shell ****"; \
+  sed -i 's|/bin/sh$|/bin/bash|g' /etc/passwd; \
+  echo "**** create user directories ****"; \
+  mkdir -p /config/Documents; \
+  echo "**** cleanup ****"; \
   rm -rf \
     /config/.cache \
-    /etc/sudoers.d/builder \
     /tmp/* \
     /var/cache/pacman/pkg/* \
     /var/lib/pacman/sync/*
