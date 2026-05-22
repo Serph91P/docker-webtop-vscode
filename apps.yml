@@ -48,8 +48,8 @@ apps:
         - "seccomp=unconfined"
 
 - id: "webtop-plex"
-  name: "Plex HTPC"
-  logo: "https://raw.githubusercontent.com/flathub/tv.plex.PlexHTPC/master/tv.plex.PlexHTPC.png"
+  name: "Plezy"
+  logo: "https://raw.githubusercontent.com/edde746/plezy/main/assets/plezy.png"
   url: "https://github.com/Serph91P/docker-webtop-vscode"
   provider: "docker"
   provider_config:
